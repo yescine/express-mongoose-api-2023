@@ -2,6 +2,7 @@ import express from "express";
 import mongoose from "mongoose";
 import * as dotenv from 'dotenv' 
 import HomeRoute from "./routes/home";
+import EcommerceRoute from "./routes/ecommerce";
 
 dotenv.config()
 
@@ -13,7 +14,10 @@ app.get("/health", (req, res, next) => {
   res.send("healthy");
 });
 
+app.use(express.json())
+
 app.use(HomeRoute);
+app.use(EcommerceRoute)
 
 const MONGODB_URI = process.env.MONGODB_URI || "mongodb://root:password@localhost:27000/admin?retryWrites=true&w=majority";
 mongoose.connect(MONGODB_URI,{ });
