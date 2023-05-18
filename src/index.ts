@@ -2,7 +2,8 @@ import express from "express";
 import mongoose from "mongoose";
 import * as dotenv from 'dotenv' 
 import HomeRoute from "./routes/home";
-
+import {Request, Response} from 'express'
+import path from "path"
 dotenv.config()
 
 const app = express();
@@ -12,6 +13,16 @@ app.get("/health", (req, res, next) => {
   res.status(200);
   res.send("healthy");
 });
+
+// production mode
+if (process.env.NODE_ENV === 'production') {
+  app.use('/', express.static('client/build')); // serve federation in PROD
+
+  // return Shell App
+  app.get('*', (req: Request, res: Response) => {
+    res.sendFile(path.join(__dirname, 'client', 'build', 'index.html'));
+  });
+}
 
 app.use(HomeRoute);
 
