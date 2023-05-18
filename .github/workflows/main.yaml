@@ -1,0 +1,43 @@
+name: Node.js Docker Build and Heroku Deployment
+
+on:
+  push:
+    branches:
+      - main
+
+env:
+  REGISTRY: registry.heroku.com
+  CLOUD_USERNAME:  ${{secrets.HEROKU_USERNAME}}
+  CLOUD_PASSWORD:  ${{secrets.HEROKU_PASSWORD}}
+  CLOUD_APIKEY:  ${{secrets.HEROKU_APIKEY}}
+
+
+jobs:
+  build-and-deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v2
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v2
+        with:
+          node-version: 14
+
+      - name: Install Dependencies
+        run: npm install
+
+      - name: Clone Frontend Repository
+        run: git clone https://github.com/yescine/react-cra-2023.git client
+
+      - name: Build Docker Image
+        run: docker build -t myapp .
+
+      - name: Log in to Heroku Registry
+        run: echo ${{ env.CLOUD_APIKEY }} | docker login --username ${{ env.CLOUD_USERNAME }} --password-stdin ${{ env.REGISTRY }}
+
+      - name: Push Docker Image to Heroku Registry
+        run: |
+          docker tag myapp ${{ env.REGISTRY }}/<your-app-name>/web
+          docker push ${{ env.REGISTRY }}/<your-app-name>/web
